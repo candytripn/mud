@@ -85,15 +85,15 @@ def simulate_attack_with_timer():
         damage = total - 100 + AvD
         hit_pool -= damage
         description = "an unremarkable attack."
-        for range, desc in attack_descriptions.items():
-            if 100 + range[0] <= total <= 100 + range[1]:
+        for damage_range, desc in attack_descriptions.items():
+            if 100 + damage_range[0] <= total <= 100 + damage_range[1]:
                 description = desc
                 break
 
         print(f"AS +{AS} vs DS +{DS} + AvD +{AvD} = +{total - 100} with d100 +{roll} = +{total} Success!")
 
         # Display the timer bar
-        for i in range(6):  # 6 half-second intervals for 3 seconds
+        for i in range(6):  # 6 half-second intervals for 3 seconds 
             time.sleep(0.5)  # Wait for half a second
             print("█", end="", flush=True)  # Print a block to represent the timer bar
 
@@ -103,10 +103,11 @@ def simulate_attack_with_timer():
         print(f"AS +{AS} vs DS +{DS} + AvD +{AvD} = +{total - 100} with d100 +{roll} = +{total} Fail.")
         print(miss_message)
 
+
     if hit_pool <= 0:
         overkill = abs(hit_pool)
         destruction_message = "Your target is destroyed!"
-        for range, desc in destruction_descriptions.items():
+        for damage_range, desc in destruction_descriptions.items():
             if range[0] <= overkill <= range[1]:
                 destruction_message = desc
                 break
@@ -163,3 +164,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
