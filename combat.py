@@ -40,6 +40,30 @@ destruction_descriptions = {
     (21, 30): "An overwhelming force utterly annihilates your target!"
 }
 
+# Define rooms and their descriptions
+rooms = {
+    "start": {
+        "description": "You are in a small, dimly lit room. There is a door to the east.",
+        "east": "hallway",
+    },
+    "hallway": {
+        "description": "You find yourself in a long hallway. There are doors to the north and south.",
+        "north": "bedroom",
+        "south": "kitchen",
+    },
+    "bedroom": {
+        "description": "This is a cozy bedroom. There's a window to the west.",
+        "west": "hallway",
+    },
+    "kitchen": {
+        "description": "You are in a well-equipped kitchen. There's a door to the north.",
+        "north": "hallway",
+    },
+}
+
+# Current room
+current_room = "start"
+
 # Global Variables
 hit_pool = 500
 AS = 243  # Example Attack Score
@@ -48,7 +72,7 @@ weapon_type = "edged"
 armor_type = "low"
 
 # Function to simulate the attack
-def simulate_attack():
+def simulate_attack_with_timer():
     global hit_pool
 
     AvD = weapon_armor_relation[weapon_type][armor_type]
@@ -67,7 +91,13 @@ def simulate_attack():
                 break
 
         print(f"AS +{AS} vs DS +{DS} + AvD +{AvD} = +{total - 100} with d100 +{roll} = +{total} Success!")
-        print(f"You hit for +{damage} damage. {description}")
+
+        # Display the timer bar
+        for i in range(6):  # 6 half-second intervals for 3 seconds
+            time.sleep(0.5)  # Wait for half a second
+            print("█", end="", flush=True)  # Print a block to represent the timer bar
+
+        print(f"\nYou hit for +{damage} damage. {description}")
     else:
         miss_message = miss_descriptions[random.randint(1, len(miss_descriptions))]
         print(f"AS +{AS} vs DS +{DS} + AvD +{AvD} = +{total - 100} with d100 +{roll} = +{total} Fail.")
@@ -91,21 +121,45 @@ def reset_game():
 # Main Game Loop
 def main():
     clear_screen()
-    print("Welcome to the Combat Simulator")
+    print("Welcome to the Adventure Game")
     print("-------------------------------\n")
 
+    # Initialize the player's location
+    current_room = "start"
+
     while True:
-        command = input("Enter a command (attack/reset/exit): ").strip().lower()
-        if command == "attack":
-            simulate_attack()
-            print("\n")  # Adding a line break after each combat roll
-        elif command == "reset":
-            reset_game()
-        elif command == "exit":
-            print("Exiting the game...")
-            break
+        if current_room == "combat":
+            # If the player is in a combat scenario, execute the combat loop
+            command = input("Enter a command (attack/reset/exit): ").strip().lower()
+            if command == "attack":
+                simulate_attack_with_timer()
+                print("\n")  # Adding a line break after each combat roll
+            elif command == "reset":
+                reset_game()
+            elif command == "exit":
+                print("Exiting combat...")
+                current_room = "start"  # Return to the starting room
+            else:
+                print("Invalid command. Please enter 'attack', 'reset', or 'exit'.\n")
         else:
-            print("Invalid command. Please enter 'attack', 'reset', or 'exit'.\n")
+            # If the player is exploring a room, handle room-related commands
+            print(rooms[current_room]["description"])  # Display the current room's description
+            command = input("Enter a command (look/direction/exit): ").strip().lower()
+
+            if command == "look":
+                # Display the current room's description again
+                print(rooms[current_room]["description"])
+            elif command in rooms[current_room]:
+                # If the direction entered is valid for the current room, move to the new room
+                current_room = rooms[current_room][command]
+            elif command == "exit":
+                print("Exiting the game...")
+                break
+            elif command == "enter_combat":
+                print("Entering combat...")
+                current_room = "combat"  # Enter the combat room
+            else:
+                print("Invalid command. Please enter 'look', a valid direction, 'enter_combat', or 'exit'.\n")
 
 if __name__ == "__main__":
     main()
